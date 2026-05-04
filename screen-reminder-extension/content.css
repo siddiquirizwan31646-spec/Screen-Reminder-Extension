@@ -1,0 +1,109 @@
+/* content.css — Overlay styles injected into pages */
+
+#screen-reminder-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+#screen-reminder-overlay.sr-visible {
+  opacity: 1;
+}
+
+.sr-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.sr-card {
+  position: relative;
+  background: #0f0f14;
+  border: 1px solid rgba(255, 200, 80, 0.3);
+  border-radius: 20px;
+  padding: 40px 48px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow:
+    0 0 60px rgba(255, 180, 40, 0.15),
+    0 30px 80px rgba(0, 0, 0, 0.6);
+  transform: translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+#screen-reminder-overlay.sr-visible .sr-card {
+  transform: translateY(0);
+}
+
+.sr-glow {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255, 180, 40, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.sr-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  animation: sr-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes sr-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+.sr-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #ffb828;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.sr-text {
+  font-size: 20px;
+  font-weight: 500;
+  color: #f0f0f0;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.sr-time {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 28px;
+  letter-spacing: 1px;
+}
+
+.sr-dismiss {
+  background: linear-gradient(135deg, #ffb828, #ff8c00);
+  color: #0f0f14;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 36px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sr-dismiss:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 160, 0, 0.4);
+}

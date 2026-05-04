@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Screen Reminder</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0c0c11;
+      --surface: #14141c;
+      --border: rgba(255, 180, 40, 0.18);
+      --accent: #ffb828;
+      --accent2: #ff8c00;
+      --text: #f0ede8;
+      --muted: rgba(240, 237, 232, 0.4);
+      --danger: #ff4757;
+    }
+
+    body {
+      width: 360px;
+      min-height: 480px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(255,180,40,0.06), transparent);
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 0 16px rgba(255,180,40,0.3);
+    }
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-weight: 400;
+      letter-spacing: 1px;
+      margin-top: 1px;
+    }
+
+    /* FORM */
+    .form-section {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-section label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: 10px 12px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      height: 64px;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--muted); }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .input-group label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    input[type="time"], input[type="number"], select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      padding: 8px 10px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    input[type="time"]:focus,
+    input[type="number"]:focus,
+    select:focus { border-color: var(--accent); }
+
+    select option { background: var(--surface); }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    .toggle-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.1);
+      border-radius: 22px;
+      cursor: pointer;
+      transition: background 0.25s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: white;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.25s;
+    }
+
+    .toggle input:checked + .toggle-slider { background: var(--accent); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+    .repeat-options {
+      display: none;
+      margin-top: 10px;
+    }
+    .repeat-options.visible { display: block; }
+
+    .add-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 11px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 10px;
+      color: #0c0c11;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .add-btn:hover { transform: scale(1.02); box-shadow: 0 4px 16px rgba(255,160,0,0.35); }
+    .add-btn:active { transform: scale(0.98); }
+
+    /* LIST */
+    .list-section {
+      padding: 14px 20px 20px;
+    }
+
+    .list-header {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .reminder-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .reminder-list::-webkit-scrollbar { width: 4px; }
+    .reminder-list::-webkit-scrollbar-track { background: transparent; }
+    .reminder-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .reminder-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reminder-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      box-shadow: 0 0 6px rgba(255,180,40,0.5);
+    }
+
+    .reminder-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .reminder-text {
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+    }
+
+    .reminder-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0 2px;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .delete-btn:hover { color: var(--danger); }
+
+    .empty-state {
+      text-align: center;
+      padding: 20px 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .empty-state .emoji { font-size: 28px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">⏰</div>
+    <div>
+      <div class="header-title">Screen Reminder</div>
+      <div class="header-sub">STAY ON TRACK</div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <label>Reminder message</label>
+    <textarea id="reminderText" placeholder="e.g. Take a break and stretch..."></textarea>
+
+    <div class="row">
+      <div class="input-group">
+        <label>Time</label>
+        <input type="time" id="reminderTime" />
+      </div>
+      <div class="input-group">
+        <label>Date</label>
+        <input type="date" id="reminderDate" style="font-size:11px;" />
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <span class="toggle-label">Repeat reminder</span>
+      <label class="toggle">
+        <input type="checkbox" id="repeatToggle" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="repeat-options" id="repeatOptions">
+      <div class="input-group">
+        <label>Repeat every</label>
+        <select id="repeatInterval">
+          <option value="15">15 minutes</option>
+          <option value="30" selected>30 minutes</option>
+          <option value="60">1 hour</option>
+          <option value="120">2 hours</option>
+          <option value="1440">Daily</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="add-btn" id="addBtn">+ Add Reminder</button>
+  </div>
+
+  <div class="list-section">
+    <div class="list-header">Active Reminders</div>
+    <div class="reminder-list" id="reminderList">
+      <div class="empty-state">
+        <div class="emoji">🔔</div>
+        No reminders yet
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
